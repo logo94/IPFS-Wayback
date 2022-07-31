@@ -9,7 +9,7 @@ I web crawlers, o bot, da un dato indirizzo HTTP eseguono delle istantanee dinam
 
 Un file WARC, mediamente della dimensione di 1GB, si presenta come una concatenazione di record WARC: ogni record WARC è composto da tre elementi, ovvero un WARC header, un HTTP header e un HTTP payload.
 
-All’interno del WARC header sono raccolti 8 tipi di informazioni:  'warcinfo', 'response', 'resource', 'request', 'metadata', 'revisit', 'conversion' e 'continuation’; ovvero le informazioni relative al tipo di contenuto, data e motivo di raccolta, indirizzo IP del dispositivo da cui è stato lanciato l’harvesting, codifica del contenuto, codice identificativo della transazione ed eventuali conversioni o modifiche apportate al file. 
+All’interno del WARC header sono raccolte le informazioni relative al tipo di contenuto, data e motivo di raccolta, indirizzo IP del dispositivo da cui è stato lanciato l’harvesting, codifica del contenuto, codice identificativo della transazione ed eventuali conversioni o modifiche apportate al file. 
 I blocco di contenuto è suddiviso in un HTTP header, contenente lo stato della risposta HTTP, e HTTP payload  e all'interno del quale sono riportati i contenuti delle pagine web:
 
 ![image](https://github.com/logo94/IPFS-Wayback/blob/master/docs/HTMLtoWARC.png)
