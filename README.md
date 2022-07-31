@@ -4,6 +4,8 @@
 
 [![Build Status](https://travis-ci.org/oduwsdl/ipwb.svg?branch=master)](https://travis-ci.org/oduwsdl/ipwb) [![pypi](https://img.shields.io/pypi/v/ipwb.svg)](https://pypi.org/project/ipwb) [![codecov](https://codecov.io/gh/oduwsdl/ipwb/branch/master/graph/badge.svg)](https://codecov.io/gh/oduwsdl/ipwb)
 
+> Per il download e l'utilizzo del programma si rimanda al repository ufficiale https://github.com/oduwsdl/ipwb 
+
 L’archiviazione delle risorse che circolano su internet avviene per mezzo di strumenti specifici denominati web crawlers. 
 I web crawlers, o bot, da un dato indirizzo HTTP eseguono delle istantanee dinamiche di ogni link attraverso cui passano, generando dei file WARC (Web ARChive File Format), un formato contenitore appositamente progettato per la conservazione a lungo termine di questa tipologia di risorse.
 
