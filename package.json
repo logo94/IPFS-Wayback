@@ -1,7 +1,0 @@
-{
-  "standard": {
-    "ignore": [
-      "ipwb/assets/reconstructive*.js"
-    ]
-  }
-}
