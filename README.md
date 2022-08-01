@@ -66,7 +66,7 @@ L’intero processo di funzionamento di ipwb può essere rappresentato con il se
 ![image](https://github.com/logo94/IPFS-Wayback/blob/master/docs/diagram_72.png)
 
 in cui i numeri in rosso rappresentano il processo di inserimento e indicizzazione:
-1. Indexer.py estrae HTTP header e payload dele risorse web contenute in un file WARC;
+1. Indexer.py estrae HTTP header e payload delle risorse web contenute in un file WARC;
 2. [3-4-5] HTTP header e HTTP payload vengono caricati all’interno della rete IPFS, il processo porta alla generazione dei CIDs corrispettivi;
 
 6. Viene generato un indice CDXJ che riporta le coppie di CID relativi a HTTP header e HTTP payload di ogni risorsa insieme ad altre informazioni per il recupero e il replay; 
@@ -79,7 +79,7 @@ mentre i numeri in blu mostrano il processo di recupero e replay dei contenuti:
 
 8. HTTP header e HTTP payload vengono riassemblati e riprodotti tramite Wayback Machine.
 
-L’integrazione di IPFS Wayback con IPFS cluster permette di garantire un’adeguata ridondanza dei dati, non più limitata a una o due copie di backup, mentre la possibilità di creare una rete privata, all’interno della quale solo i nodi in possesso in possesso dell’apposita chiave possono inviare e ricevere dati, offre la possibilità di creare un sistema di conservazione e accesso completamente distribuito, scalabile e resistente alla censura.
+L’integrazione di IPFS Wayback con IPFS cluster permette di garantire un’adeguata ridondanza dei dati, non più limitata a una o due copie di backup, mentre la possibilità di creare una rete privata, all’interno della quale solo i nodi in possesso dell’apposita chiave possono inviare e ricevere dati, offre la possibilità di creare un sistema di conservazione e accesso completamente distribuito, scalabile e resistente alla censura.
 
 
 ### Citazione progetto
