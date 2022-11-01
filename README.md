@@ -24,7 +24,7 @@ Un ulteriore fattore di rischio è rappresentato dal numero limitato di copie di
 
 # IPFS Wayback
 
-InterPlanetary Wayback (ipwb) è un software basato su Python pywb (Core Web Archive Toolkit) che permette la gestione e la riproduzione dei file WARC all’interno di IPFS (InterPlanetary File System): protocollo per lo scambio di dati all'interno di una rete di computer che mira a connettere tutti i dispositivi computazionali tramite un unico sistema di file. IPFS introduce un sistema alternativo per l’identificazione e la gestione di dati, tale modalità prende il nome di [content-based addressing](https://github.com/logo94/IPFS-Wayback/wiki/Content-based-addressing): le risorse invece che essere individuate attraverso il proprio URL (Uniform Resource Locator) e quindi la propria posizione all’interno della rete, vengono identificate attraverso un codice identificativo univoco, desunto direttamente dal contenuto di una risorsa digitale, che prende il nome di [Content Identifier](https://github.com/logo94/IPFS-Wayback/wiki/Content-based-addressing#cid---content-identifier) (o CID). Il CID di blocchi equivalenti rimarrà invariato identificando con lo stesso link tutti i contenuti uguali; mentre la modifica del contenuto porterà sempre alla generazione di un CID diverso, garantendo così l’autenticità e l’integrità delle risorse.
+InterPlanetary Wayback (ipwb) è un software basato su Python pywb (Core Web Archive Toolkit) che permette la gestione e la riproduzione dei file WARC all’interno di [IPFS](https://www.ipfs.tech/) (InterPlanetary File System): protocollo per lo scambio di dati all'interno di una rete di computer che mira a connettere tutti i dispositivi computazionali tramite un unico sistema di file. IPFS introduce un sistema alternativo per l’identificazione e la gestione di dati, tale modalità prende il nome di [content-based addressing](https://github.com/logo94/IPFS-Wayback/wiki/Content-based-addressing): le risorse invece che essere individuate attraverso il proprio URL (Uniform Resource Locator) e quindi la propria posizione all’interno della rete, vengono identificate attraverso un codice identificativo univoco, desunto direttamente dal contenuto di una risorsa digitale, che prende il nome di [Content Identifier](https://github.com/logo94/IPFS-Wayback/wiki/Content-based-addressing#cid---content-identifier) (o CID). Il CID di blocchi equivalenti rimarrà invariato identificando con lo stesso link tutti i contenuti uguali; mentre la modifica del contenuto porterà sempre alla generazione di un CID diverso, garantendo così l’autenticità e l’integrità delle risorse.
 
 A differenza del sistema client-server utilizzato oggi su internet, all'interno di IPFS la comunicazione avviene per mezzo di un’architettura peer-to-peer in cui ogni dispositivo dotato di connessione a internet può operare come nodo della rete. ll funzionamento del sistema peer-to-peer è gestito automaticamente da [Libp2p](https://github.com/logo94/IPFS-Wayback/wiki/Libp2p), uno stack di rete modulabile in grado di gestire le diverse fasi della comunicazione tra i nodi, dalla negoziazione dei protocolli di trasporto allo scambio dei pacchetti.
 
@@ -35,7 +35,9 @@ Prima dell’invio della richiesta avviene una negoziazione tra protocolli per s
 Ogni volta che un nodo ottiene una risorsa, una copia della stessa viene salvata sotto forma di file cache a livello locale; tramite l’utilizzo di Pinset i nodi possono gestire automaticamente o manualmente il mantenimento o la cancellazione dei file da loro posseduti, selezionando quali file salvare e quali invece scartare. Nel momento in cui un nodo seleziona la risorsa per il mantenimento locale, PeerID del nodo e CID vengono pubblicati all’interno della DHT.
 
 Anche qualora il nodo che ha caricato la risorsa all’interno di IPFS si disconnettesse, fintanto che i nodi della rete saranno in possesso del numero sufficiente di dati necessari a ricomporre integralmente un file, l’accesso ai contenuti non verrà compromesso.
-Un sistema di conservazione basato su IPFS è quindi in grado di garantire un adeguato fattore di replicazione delle risorse mentre l’accesso alle risorse è garantito dalla comunicazione diretta tra nodi, senza la necessità di passare per il sistema dei nomi di dominio, quindi scongiurando i rischi di isolamento o censura passibili di cambiamenti di ordine economico o politico.
+Un sistema di conservazione basato su IPFS è quindi in grado di garantire un adeguato fattore di replicazione delle risorse mentre l’accesso alle risorse è garantito dalla comunicazione diretta tra nodi, senza la necessità di passare per il sistema dei nomi di dominio.
+
+Tramite l’utilizzo di una specifica chiave, IPFS permette ai nodi di comunicare esclusivamente con altri nodi in possesso della stessa chiave, costituendo una rete privata, isolata dalla rete pubblica. All’interno di una rete di nodi fidati è sufficiente trovare il modo di monitorare lo stato della rete e orchestrare, in modo centralizzato, la permanenza dei dati all’interno dei singoli nodi. IPFS-Cluster, a questo fine, permette di impostare un fattore di replicazione minimo per tutti i dati, quindi mantenere i file sempre disponibili e accessibili all’interno della rete. 
 
 Per il suo funzionamento InterPlanetary Wayback dispone di due script: [indexer.py](https://github.com/logo94/IPFS-Wayback/wiki#indicizzazione) e [replay.py](https://github.com/logo94/IPFS-Wayback/wiki#replay).
 
@@ -79,28 +81,12 @@ mentre i numeri in blu mostrano il processo di recupero e replay dei contenuti:
 
 8. HTTP header e HTTP payload vengono riassemblati e riprodotti tramite Wayback Machine.
 
-L’integrazione di IPFS Wayback con IPFS cluster permette di garantire un’adeguata ridondanza dei dati, non più limitata a una o due copie di backup, mentre la possibilità di creare una rete privata, all’interno della quale solo i nodi in possesso dell’apposita chiave possono inviare e ricevere dati, offre la possibilità di creare un sistema di conservazione e accesso completamente distribuito, scalabile e resistente alla censura.
+ 
+In Italia sono presenti 6852 biblioteche di enti territoriali, 1316 biblioteche di Università statali e 46 biblioteche pubbliche statali del Ministero della Cultura. L’impiego di anche solo un dispositivo per struttura permetterebbe la costituzione di una rete di oltre 8000 nodi la cui affidabilità sarebbe garantita dal proprio mandato istituzionale.  
 
+Il modello proposto permette quindi la realizzazione di un sistema di conservazione distribuito tra biblioteche per la conservazione permanente del patrimonio culturale nativo digitale, se non come sistema di conservazione principale, come sistema di backup da utilizzare in parallelo ai sistemi già in uso. IPFS non richiede investimenti di natura infrastrutturale e permette l'impiego dell’apparecchiatura già in uso o addirittura di riciclare quella considerata obsoleta. 
+Il punto nevralgico rimane l’adozione, maggiore sarà il numero di nodi maggiore saranno efficienza e resilienza della rete.
 
-### Citazione progetto
-
-> Mat Kelly, Sawood Alam, Michael L. Nelson, and Michele C. Weigle. __InterPlanetary Wayback: Peer-To-Peer Permanence of Web Archives__. In _Proceedings of the 20th International Conference on Theory and Practice of Digital Libraries_, pages 411–416, Hamburg, Germany, June 2016.
-
-```bib
-@INPROCEEDINGS{ipwb-tpdl2016,
-  AUTHOR    = {Mat Kelly and
-               Sawood Alam and
-               Michael L. Nelson and
-               Michele C. Weigle},
-  TITLE     = {{InterPlanetary Wayback}: Peer-To-Peer Permanence of Web Archives},
-  BOOKTITLE = {Proceedings of the 20th International Conference on Theory and Practice of Digital Libraries},
-  PAGES     = {411--416},
-  MONTH     = {June},
-  YEAR      = {2016},
-  ADDRESS   = {Hamburg, Germany},
-  DOI       = {10.1007/978-3-319-43997-6_35}
-}
-```
 
 ## Licenza
 
