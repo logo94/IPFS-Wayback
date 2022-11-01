@@ -2,90 +2,142 @@
 
 # InterPlanetary Wayback (ipwb)
 
-> Per il download e l'utilizzo del programma si rimanda al repository ufficiale https://github.com/oduwsdl/ipwb 
+> Per il download e l'utilizzo del programma si rimanda al repository ufficiale https://github.com/oduwsdl/ipwb
 
-L’archiviazione delle risorse che circolano su internet avviene per mezzo di strumenti specifici denominati web crawlers. 
-I web crawlers, o bot, da un dato indirizzo HTTP eseguono delle istantanee dinamiche di ogni link attraverso cui passano, generando dei file WARC (Web ARChive File Format), un formato contenitore appositamente progettato per la conservazione a lungo termine di questa tipologia di risorse.
+> Per consultare la documentazione vedere sezione [wiki](https://github.com/logo94/IPFS-Wayback/wiki)
 
-Un file WARC, mediamente della dimensione di 1GB, si presenta come una concatenazione di record WARC: ogni record WARC è composto da tre elementi, ovvero un WARC header, un HTTP header e un HTTP payload.
+## Installazione
 
-All’interno del WARC header sono raccolte le informazioni relative al tipo di contenuto, data e motivo di raccolta, indirizzo IP del dispositivo da cui è stato lanciato l’harvesting, codifica del contenuto, codice identificativo della transazione ed eventuali conversioni o modifiche apportate al file. 
-I blocco di contenuto è suddiviso in un HTTP header, contenente lo stato della risposta HTTP, e HTTP payload  e all'interno del quale sono riportati i contenuti delle pagine web:
+InterPlanetary Wayback (ipwb) utilizza Python 3.7+. In alternativa è disponibile l'immagine Docker (vedi [Sezione dedicata](https://github.com/logo94/IPFS-Wayback/wiki#utilizzo-tramite-docker)).
 
-![image](https://github.com/logo94/IPFS-Wayback/blob/master/docs/HTMLtoWARC.png)
+L'installazione tradizionale può essere effettuata per mezzo del comando pip:
+```
+$ pip install ipwb
+```
+La versione di sviluppo contenente gli aggiornamenti non ancora pubblicati ufficilamente può essere invece essere installata con i seguenti comandi:
+```
+$ git clone https://github.com/oduwsdl/ipwb
+$ cd ipwb
+$ pip install ./
+```
 
-Per la conservazione a lungo termine dei file WARC la prassi ne prevede il deposito all’interno di repositories certificati e il replay dei contenuti può avvenire sia per mezzo della Open Wayback Machine di Internet Archive che tramite Wayback Machines installate localmente. 
+## Prerequisiti
+Per il corretto funzionamento di ipwb deve essere installato e in funzione IPFS daemon. Per l'istallazione di IPFS vedere la [pagina ufficiale](https://docs.ipfs.tech/install/).
 
-Se da un lato la scelta di affidare l’archiviazione dei propri archivi digitali a depositi certificati o servizi in cloud può essere una scelta forzata, soprattutto per chi non sia in possesso delle risorse adeguate per il mantenimento di un sistema di conservazione e replay locale, dall’altro apre la strada ad una serie di minacce. 
+Una volta installato IPFS sul proprio dispositivo per avviare il programma eseguire:
+```
+$ ipfs daemon
+```
+Qualora dovessero risultare conflitti con la porta API 5001, prima di avviare il demone è necessario modificare le impostazioni di IPFS affinchè sia dato l'accesso a una porta a propria scelta (nell'esempio seguente la porta 5002):
+```
+$ ipfs config Addresses.API /ip4/127.0.0.1/tcp/5002
+```
 
-Il primo rischio è rappresentato dalla mole crescente di dati da archiviare e lo sforzo economico necessario per garantire la scalabilità dell’azione conservativa; l’esponenziale incremento della quantità di dati prodotti e pubblicati ogni giorno sul web richiede infatti capacità hardware e tecniche sempre più onerose, il rischio è quindi quello di non disporre delle risorse economiche sufficienti a rinnovare i contratti con i fornitori dei servizi. 
+## Indicizzazione
+In un nuovo terminale rispetto a quello utilizzato per avviare ipfs daemon (o lo stesso qualora il demone sia stato avviato in background), per caricare i file WARC all'interno di IPFS e creare un indice CDXJ, eseguire il comando:
+```
+$ ipwb index (path del file warc oppure della versione compressa warc.gz)
+```
+Per esempio, utilizzando il campione di esempio del repository:
+```
+$ ipwb index samples/warcs/salam-home.warc
+```
+L'indice CDXJ generato dal comando verrà mostrato a terminale, per salvarlo all'interno di un file sarà sufficiente aggiungere il comando:
+```
+$ ipwb index samples/warcs/salam-home.warc >> NomeFile.cdxj
+```
 
-Un ulteriore fattore di rischio è rappresentato dal numero limitato di copie di backup messe a disposizione dai fornitori di servizi di storage, normalmente non superiore a una o due copie depositate in server remoti, aprendo la strada al ‘single point of failure’ in cui errore umano, malfunzionamenti o problemi relativi al sistema dei nomi di dominio (DNS) possono portare alla perdita definitiva dei dati o dell’accesso agli stessi.
+## Replay
+Per il replay di un file WARC è necessario fornire a ipwb un indice CDXJ in modo da permettere al programma di ricomporre HTTP header e HTTP payload in un unico file. Per far ciò tra i parametri del comando deve essere riportato il path del file:
+```
+$ ipwb replay <path cdxj>
+```
+Qualora il file CDXJ sia disponibile online, è possibile passare al programma direttamente l'inidirizzo HTTP della risorsa:
+```
+$ ipwb replay http://myDomain/files/myIndex.cdxj
+```
+oppure, se conosciuto, il CID del file CDXJ:
+```
+$ ipwb replay QmYwAPJzv5CZsnANOTaREALhashYgPpHdWEz79ojWnPbdG
+```
+Una volta eseguito il comando la versione archiviata della risorsa sarà visibile tramite web browser all'indirizzo `http://localhost:2016` (o alla porta scelta)
 
-# IPFS Wayback
+Per eseguire il comando ad un indirizzo diverso da localhost (127.0.0.1) è necessario utilizzare un reverse proxy che supporti il protocollo HTTPS.
 
-InterPlanetary Wayback (ipwb) è un software basato su Python pywb (Core Web Archive Toolkit) che permette la gestione e la riproduzione dei file WARC all’interno di [IPFS](https://www.ipfs.tech/) (InterPlanetary File System): protocollo per lo scambio di dati all'interno di una rete di computer che mira a connettere tutti i dispositivi computazionali tramite un unico sistema di file. IPFS introduce un sistema alternativo per l’identificazione e la gestione di dati, tale modalità prende il nome di [content-based addressing](https://github.com/logo94/IPFS-Wayback/wiki/Content-based-addressing): le risorse invece che essere individuate attraverso il proprio URL (Uniform Resource Locator) e quindi la propria posizione all’interno della rete, vengono identificate attraverso un codice identificativo univoco, desunto direttamente dal contenuto di una risorsa digitale, che prende il nome di [Content Identifier](https://github.com/logo94/IPFS-Wayback/wiki/Content-based-addressing#cid---content-identifier) (o CID). Il CID di blocchi equivalenti rimarrà invariato identificando con lo stesso link tutti i contenuti uguali; mentre la modifica del contenuto porterà sempre alla generazione di un CID diverso, garantendo così l’autenticità e l’integrità delle risorse.
+Per permettere a ipwb di riconoscere il proxy è necessario includere all'interno del comando i parametri `--proxy` o `-P` seguiti dall'URL del proxy, come riportato nel seguente esempio:
+```
+$ ipwb replay --proxy=https://ipwb.example.com <path cdxj>
+```
 
-A differenza del sistema client-server utilizzato oggi su internet, all'interno di IPFS la comunicazione avviene per mezzo di un’architettura peer-to-peer in cui ogni dispositivo dotato di connessione a internet può operare come nodo della rete. ll funzionamento del sistema peer-to-peer è gestito automaticamente da [Libp2p](https://github.com/logo94/IPFS-Wayback/wiki/Libp2p), uno stack di rete modulabile in grado di gestire le diverse fasi della comunicazione tra i nodi, dalla negoziazione dei protocolli di trasporto allo scambio dei pacchetti.
+## Utilizzo tramite Docker
+Per l'utilizzo tramite Docker è disponibile un'immagine precompilata, eseguibile con il comando:
+```
+$ docker container run -it --rm -p 2016:2016 oduwsdl/ipwb
+```
+Il container avvia un'istanza IPFS daemon, esegue l'inidicizzazione di un file WARC d'esempio e ne esegue il replay utilizzando il file CDXJ creato. Dopo pochi secondi il replay sarà accesssibile tramite web browser all'indirizzo `hhtp://localhost:2016/`.
 
-L’identificazione di ogni nodo avviene per mezzo dell’impronta digitale della sua chiave pubblica (vedi [Peer Identity](https://github.com/logo94/IPFS-Wayback/wiki/Libp2p#peerid---peer-identity)), un Peer ID invia quindi alla rete una richiesta per ottenere un contenuto specifico (CID): l’instradamento delle richieste avviene per mezzo di tabelle distribuite (vedi [Distributed Hash Table](https://github.com/logo94/IPFS-Wayback/wiki/Libp2p#routing-instradamento)) tra i nodi che al loro interno contengono coppie di CID e dei Peer ID in loro possesso. Tramite l’interrogazione di queste tabelle è quindi possibile risalire ai nodi che ospitano i contenuti desiderati. 
+Per indicizzare e riprodurre file WARC custoditi localmente è necessario eseguire all'interno del container il muonting della cartella in cui sono contenuti tramite il parametro -v (o --volume) insieme ai relativi comandi. L'immagine Docker fa riferimento alla cartella di defualt `/data` in cui sono riportate le cartelle `warc`, `cdxj` e `ipfs`. Per passare i propri file WARC è sufficiente eseguire il muont della relativa cartella all'interno della directory `warc`.
 
-Prima dell’invio della richiesta avviene una negoziazione tra protocolli per stabilire quelli supportati dai nodi coinvolti nello scambio. Una volta stabilito il percorso e il protocollo per il corretto dialogo tra nodi viene inviata in rete la richiesta per uno specifico contenuto. I peers in possesso dei blocchi richiesti codificano il contenuto con la chiave pubblica del peer che ha eseguito la richiesta e inviano una risposta, in questo modo solo il nodo in possesso della chiave privata corretta potrà decodificare correttamente il contenuto dei blocchi ricevuti. Lo scambio tra nodi può avvenire sia in modo diretto tra mittente e destinatario, che indiretto utilizzando altri nodi come tramite. 
+Per la documentazione completa sull'utilizzo di Docker si rimanda al [repository ufficiale](https://github.com/oduwsdl/ipwb#using-docker).
 
-Ogni volta che un nodo ottiene una risorsa, una copia della stessa viene salvata sotto forma di file cache a livello locale; tramite l’utilizzo di Pinset i nodi possono gestire automaticamente o manualmente il mantenimento o la cancellazione dei file da loro posseduti, selezionando quali file salvare e quali invece scartare. Nel momento in cui un nodo seleziona la risorsa per il mantenimento locale, PeerID del nodo e CID vengono pubblicati all’interno della DHT.
+## Elenco comandi
+La lista di tutti i comandi supportati dal programma può essere ottenuta per mezzo del parametro `-h` oppure `--help`:
+```
+$ ipwb -h
+utilizzo: ipwb [-h] [-d DAEMON_ADDRESS] [-v] [-u] {index,replay} ...
 
-Anche qualora il nodo che ha caricato la risorsa all’interno di IPFS si disconnettesse, fintanto che i nodi della rete saranno in possesso del numero sufficiente di dati necessari a ricomporre integralmente un file, l’accesso ai contenuti non verrà compromesso.
-Un sistema di conservazione basato su IPFS è quindi in grado di garantire un adeguato fattore di replicazione delle risorse mentre l’accesso alle risorse è garantito dalla comunicazione diretta tra nodi, senza la necessità di passare per il sistema dei nomi di dominio.
+InterPlanetary Wayback (ipwb)
 
-Tramite l’utilizzo di una specifica chiave, IPFS permette ai nodi di comunicare esclusivamente con altri nodi in possesso della stessa chiave, costituendo una rete privata, isolata dalla rete pubblica. All’interno di una rete di nodi fidati è sufficiente trovare il modo di monitorare lo stato della rete e orchestrare, in modo centralizzato, la permanenza dei dati all’interno dei singoli nodi. IPFS-Cluster, a questo fine, permette di impostare un fattore di replicazione minimo per tutti i dati, quindi mantenere i file sempre disponibili e accessibili all’interno della rete. 
+argomenti opzionali:
+  -h, --help            stampa a terminale il messaggio di aiuto
+  -d DAEMON_ADDRESS, --daemon DAEMON_ADDRESS
+                        Multi-address del demone IPFS (default
+                        /dns/localhost/tcp/5001/http)
+  -v, --version         stampa a terminale la versione del software
+  -u, --update-check    verifica disponibilità di eventuali aggiornamenti
 
-Per il suo funzionamento InterPlanetary Wayback dispone di due script: [indexer.py](https://github.com/logo94/IPFS-Wayback/wiki#indicizzazione) e [replay.py](https://github.com/logo94/IPFS-Wayback/wiki#replay).
+comandi:
+  Chiamata per l'esecuzione del programma: "ipwb <command>" (per esempio ipwb replay <cdxjFile>)
 
-### Indexer.py
+  {index,replay}
+    index               Indicizza un file WARC per il replay tramite ipwb
+    replay              Avvia la Wayback Machine tramite Web browser
 
-Lo script indexer.py permette di estrarre direttamente dal WARC Store (archivio locale di file .warc) un record WARC alla volta, divide HTTP header e HTTP payload dei record WARC e carica le due parti all’interno della rete IPFS.
- 
-Al momento dell’upload nella rete i file vengono suddivisi in blocchi di dati, a ciascuno dei quali viene attribuito un codice identificativo univoco, desunto direttamente dal proprio contenuto, che prende il nome di Content Identifier (o CID).
+```
+```
+$ ipwb index -h
+utilizzo: ipwb [-h] [-e] [-c] [--compressFirst] [-o OUTFILE] [--debug]
+            index <warc_path> [index <warc_path> ...]
 
-![image](https://github.com/logo94/IPFS-Wayback/blob/master/docs/IPFS-upload.png)
+Indicizza un file WARC file per il replay tramite ipwb
 
-Una volta caricati i file WARC all’interno di IPFS e ottenuti i CIDs di HTTP Header e HTTP Payload di ogni risorsa, viene generato un file CDXJ contenente i metadati necessari per recuperare e riprodurre il contenuto. 
+argomenti spaziali:
+  index <warc_path>      Path al file WARC[.gz]
 
-Un record CDXJ appare quindi come:
+argomenti opzionali:
+  -h, --help            stampa a terminale il messaggio di aiuto
+  -e                    Crittografare il contenuto WARC prima di aggiungerlo a IPFS
+  -c                    Comprimere il contenuto WARC prima di aggiungerlo a IPFS
+  --compressFirst       Comprimere i dati prima della crittografia, quando applicabile
+  -o OUTFILE, --outfile OUTFILE
+                        Path al file CDXJ di output, defaults to STDOUT
+  --debug               Parametro per facilitare il test e il DEBUG
+```
+```
+$ ipwb replay -h
+utilizzo: ipwb replay [-h] [-P [<host:port>]] [index]
 
-![image](https://github.com/logo94/IPFS-Wayback/blob/master/docs/CDXJ-example.png)
+Avvia la Wayack Machine per un utilizzo tramite web browser
 
-### Replay.py
+argomenti spaziali:
+  index                 path, URI, o multihash del file da riprodurre
 
-Replay.py è la componente di InterPlanetary Wayback che si occupa del recupero e della riproduzione dei file WARC attraverso web browser; gli utenti possono accedere alle risorse archiviate per mezzo del loro URL che può essere inserito direttamente all’interno della maschera di ricerca della Wayback Machine (vedi immagine): 
+optional arguments:
+  -h, --help            stampa a terminale il messaggio di aiuto
+  -P [<host:port>], --proxy [<host:port>]
+                        Proxy URL
 
-![image](https://github.com/logo94/IPFS-Wayback/blob/master/docs/browser-snapshot.png)
-
-In seguito ad una richiesta il software interroga l’indice CDXJ all’interno del quale sono contenuti i CIDs di HTTP header e HTTP payload della risorsa desiderata, vengono interrogati i nodi della rete IPFS per ottenere i contenuti desiderati, una volta ottenuti  replay.py ricompone il file WARC e ne riproduce il contenuto.
-
-L’intero processo di funzionamento di ipwb può essere rappresentato con il seguente schema:
-
-![image](https://github.com/logo94/IPFS-Wayback/blob/master/docs/diagram_72.png)
-
-in cui i numeri in rosso rappresentano il processo di inserimento e indicizzazione:
-1. Indexer.py estrae HTTP header e payload delle risorse web contenute in un file WARC;
-2. [3-4-5] HTTP header e HTTP payload vengono caricati all’interno della rete IPFS, il processo porta alla generazione dei CIDs corrispettivi;
-
-6. Viene generato un indice CDXJ che riporta le coppie di CID relativi a HTTP header e HTTP payload di ogni risorsa insieme ad altre informazioni per il recupero e il replay; 
-
-mentre i numeri in blu mostrano il processo di recupero e replay dei contenuti:
-1. L’utente richiede un contenuto attraverso il suo URL;
-2. Replay.py interroga l’indice CDXJ per sapere quali CID sono necessari per ricomporre il contenuto richiesto;
-3. Vengono individuati i CIDs di HTTP header e HTTP payload della risorsa richiesta;
-4. [5-6-7] il software inoltra una richiesta alla rete per ottenere i contenuti desiderati; i nodi in possesso di quei contenuti inviano i dati al nodo che ha eseguito la richiesta;
-
-8. HTTP header e HTTP payload vengono riassemblati e riprodotti tramite Wayback Machine.
-
- 
-In Italia sono presenti 6852 biblioteche di enti territoriali, 1316 biblioteche di Università statali e 46 biblioteche pubbliche statali del Ministero della Cultura. L’impiego di anche solo un dispositivo per struttura permetterebbe la costituzione di una rete di oltre 8000 nodi la cui affidabilità sarebbe garantita dal proprio mandato istituzionale.  
-
-Il modello proposto permette quindi la realizzazione di un sistema di conservazione distribuito tra biblioteche per la conservazione permanente del patrimonio culturale nativo digitale, se non come sistema di conservazione principale, come sistema di backup da utilizzare in parallelo ai sistemi già in uso. IPFS non richiede investimenti di natura infrastrutturale e permette l'impiego dell’apparecchiatura già in uso o addirittura di riciclare quella considerata obsoleta. 
-Il punto nevralgico rimane l’adozione, maggiore sarà il numero di nodi maggiore saranno efficienza e resilienza della rete.
+```
 
 
 ## Licenza
